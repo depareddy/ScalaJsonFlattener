@@ -1,0 +1,1 @@
+{"name":"sbt","version":"1.6.1","bspVersion":"2.0.0-M5","languages":["scala"],"argv":["/home/abiram/.jdks/openjdk-16.0.2/bin/java","-Xms100m","-Xmx100m","-classpath","/home/abiram/.local/share/JetBrains/IdeaIC2021.2/Scala/launcher/sbt-launch.jar","xsbt.boot.Boot","-bsp","--sbt-launch-jar=/home/abiram/.local/share/JetBrains/IdeaIC2021.2/Scala/launcher/sbt-launch.jar"]}

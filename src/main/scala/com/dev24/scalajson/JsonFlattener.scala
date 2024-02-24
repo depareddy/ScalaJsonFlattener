@@ -1,6 +1,5 @@
 package com.dev24.scalajson
 
-// import com.example.Test1.elementIters
 import org.apache.commons.lang3.builder.ToStringBuilder
 import org.apache.commons.text.translate.{AggregateTranslator, EntityArrays, LookupTranslator}
 
@@ -10,7 +9,7 @@ import java.util.Map.Entry
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-case class FlattenerTO(addVal:Boolean,source2:Any )
+case class FlattenerTO(addVal:Boolean,source2:Any)
 
 
 
@@ -18,9 +17,9 @@ case class FlattenerTO(addVal:Boolean,source2:Any )
 
 class JsonFlattener(json:String) {
 
-  type M= JsonValBase[JacksonJsonVal]
+  type M= JsonValBase[_]
 
-  case class FlattenerTO1(addVal:Boolean,source2:M )
+  case class FlattenerTO1(addVal:Boolean,source2:Any )
 
   private var separator = '.'
   private var leftBracket = '['
@@ -29,8 +28,8 @@ class JsonFlattener(json:String) {
   private var printMode="MINIMAL"
   private var elementIters:mutable.ArrayDeque[IndexedPeekIterator[Any]] = new mutable.ArrayDeque();
 
-   var source:JsonValBase[JacksonJsonVal]=_
-
+   //var source:JsonValBase[JacksonJsonVal]=_
+   var source:JsonValBase[_]=_
   private var  flattenedMap:JsonifyLinkedHashMapNew[String,Object]=new JsonifyLinkedHashMapNew()
 
   private var  flattenedMap1:JsonifyLinkedHashMapNew[String,Object]=new JsonifyLinkedHashMapNew()
@@ -38,8 +37,8 @@ class JsonFlattener(json:String) {
   def flatten():String ={
     //var source1:JsonValBase[_]=new JacksonJsonCore().parse(json)
     //source1
-  //  val m=flattenAsMap()
-    val m=flattenAsMapNew()
+    //val m=flattenAsMap()
+    val m=flattenAsMapNew1()
     val str=m.map({
       case(k,v) => {
         println("k--"+k)
@@ -52,7 +51,7 @@ class JsonFlattener(json:String) {
 
 
   def  flattenAsMap():mutable.Map[String, Object]= {
-    source=new JacksonJsonCore().parse(json)
+    //source=new JacksonJsonCore().parse(json)
     println("source--"+source)
    // flattenedMap = new JsonifyLinkedHashMapNew()
     println("flattenAsMap before reduce")
@@ -98,7 +97,8 @@ class JsonFlattener(json:String) {
   }
 
   def  flattenAsMapNew():mutable.Map[String, Object]= {
-    source=new JacksonJsonCore().parse(json)
+    //source=new JacksonJsonCore().parse(json)
+    source=JsonFlattener.convertToJson(json)
     println("flattenAsMapNew--"+source)
     // flattenedMap = new JsonifyLinkedHashMapNew()
      var elementItersnew:mutable.ArrayDeque[IndexedPeekIterator[Any]] = new mutable.ArrayDeque();
@@ -123,7 +123,7 @@ class JsonFlattener(json:String) {
         println("deepestIter peekAdvanced--")
         var mem:Entry[String,_ <: JsonValBase[JacksonJsonVal]] =
           deepestIter.next().asInstanceOf[Entry[String,_ <: JsonValBase[JacksonJsonVal]]];
-        System.out.println("else if flattenAsMap mem value--"+mem.getValue);
+        println("else if flattenAsMap mem value--"+mem.getValue);
         val b=reduceNew(mem.getValue,elementItersnew);
         (elementItersnew,b)
       }
@@ -138,7 +138,9 @@ class JsonFlattener(json:String) {
     }.takeWhile((v) => !v._1.isEmpty).foreach((v) => {
       println("iterator--")
       val t5=v._1.iterator
+      val t6=v._1.head.getCurrent();
       val flatneer=v._2
+      println(s"get current iterator--$t6")
       println("bool"+b+"sss"+t5.foreach(p => println("print contents"+p)))
       if(flatneer.addVal)
         {
@@ -159,6 +161,148 @@ class JsonFlattener(json:String) {
 
 
   }
+
+
+  def  flattenAsMapNew1():mutable.Map[String, Object]= {
+    //source=new JacksonJsonCore().parse(json)
+    source=JsonFlattener.convertToJson(json)
+    println("flattenAsMapNew--"+source)
+    // flattenedMap = new JsonifyLinkedHashMapNew()
+    var elementItersnew:mutable.ArrayDeque[IndexedPeekIterator[Any]] = new mutable.ArrayDeque();
+    var  flattenedMap1:JsonifyLinkedHashMapNew[String,Object]=new JsonifyLinkedHashMapNew()
+    println("flattenAsMapNew before reduce")
+    var b=reduceNew(source,elementItersnew)
+    println("flattenAsMapNew after reduce"+b)
+    println("elementItersnew size"+elementItersnew.size)
+    LazyList.iterate((elementItersnew,b)) { case (l,b) =>
+      var deepestIter:IndexedPeekIterator[Any] = l.last
+      println("deepestIter last--"+deepestIter)
+      if(!deepestIter.hasNext()) {
+        println("deepestIter has next and removing last--")
+        l.removeLast();
+        println("elementIters sizedeepestIter after removing last--"+l)
+        var a = None : Option[Any]
+        val flatternerTo=new FlattenerTO1(false,null)
+        (elementItersnew,flatternerTo)
+      }
+      else if (deepestIter.peekAdvanced().isInstanceOf[Entry[String,_ <: JsonValBase[_]]]) {
+        // @SuppressWarnings("unchecked")
+        println("deepestIter peekAdvanced--")
+        var mem:Entry[String,_ <: JsonValBase[_]] =
+          deepestIter.next().asInstanceOf[Entry[String,_ <: JsonValBase[_]]];
+        println("else if flattenAsMap mem value--"+mem.getValue);
+        val b=reduceNew(mem.getValue,elementItersnew);
+        (elementItersnew,b)
+      }
+      else
+      {
+        println("before else JsonValueBase--");
+        var val1:JsonValBase[_] = deepestIter.next().asInstanceOf[JsonValBase[_]];
+        println("else JsonValueBase--"+ToStringBuilder.reflectionToString(val1));
+        val b= reduceNew(val1,elementItersnew);
+        (elementItersnew,b)
+      }
+    }.takeWhile((v) =>{
+      println("take while")
+      !v._1.isEmpty
+    } ).foreach((v) => {
+      println("for each")
+      println("iterator--")
+      val t5=v._1.iterator
+      val t6=v._1.head.getCurrent();
+      val flatneer=v._2
+      println(s"get current iterator--$t6")
+      println("bool"+b+"sss"+t5.foreach(p => println("print contents"+p)))
+      if(flatneer.addVal)
+      {
+        var map:JsonifyLinkedHashMapNew[String,Object]=getElem(v._1,flatneer.source2)
+        println("bool true"+b+"sss"+t5.foreach(p => println("print contents"+p)))
+        flattenedMap1.putAll(map)
+      }
+    })
+    // flattenedMap.asScala
+    flattenedMap1.asScala
+    // while (!elementIters.isEmpty) {
+    // IndexedPeekIterator<?> deepestIter = elementIters.getLast();
+
+    //}
+
+    // flattenedMap.asScala
+    //flattenedMap = new JsonifyLinkedHashMapNew();
+
+
+  }
+
+  def  flattenAsMapNew2():mutable.Map[String, Object]= {
+    //source=new JacksonJsonCore().parse(json)
+    source=JsonFlattener.convertToJson(json)
+    println("flattenAsMapNew--"+source)
+    // flattenedMap = new JsonifyLinkedHashMapNew()
+    var elementItersnew:mutable.ArrayDeque[IndexedPeekIterator[Any]] = new mutable.ArrayDeque();
+    var  flattenedMap1:JsonifyLinkedHashMapNew[String,Object]=new JsonifyLinkedHashMapNew()
+    println("flattenAsMapNew before reduce")
+    var b=reduceNew(source,elementItersnew)
+    println("flattenAsMapNew after reduce"+b)
+    println("elementItersnew size"+elementItersnew.size)
+    LazyList.iterate((elementItersnew,b)) { case (l,b) =>
+      var deepestIter:IndexedPeekIterator[Any] = l.last
+      println("deepestIter last--"+deepestIter)
+      if(!deepestIter.hasNext()) {
+        println("deepestIter has next and removing last--")
+        l.removeLast();
+        println("elementIters sizedeepestIter after removing last--"+l)
+        var a = None : Option[Any]
+        val flatternerTo=new FlattenerTO1(false,null)
+        (elementItersnew,flatternerTo)
+      }
+      else if (deepestIter.peekAdvanced().isInstanceOf[Entry[String,_ <: JsonValBase[_]]]) {
+        // @SuppressWarnings("unchecked")
+        println("deepestIter peekAdvanced--")
+        var mem:Entry[String,_ <: JsonValBase[_]] =
+          deepestIter.next().asInstanceOf[Entry[String,_ <: JsonValBase[_]]];
+        println("else if flattenAsMap mem value--"+mem.getValue);
+        val b=reduceNew(mem.getValue,elementItersnew);
+        (elementItersnew,b)
+      }
+      else
+      {
+        println("before else JsonValueBase--");
+        var val1:JsonValBase[_] = deepestIter.next().asInstanceOf[JsonValBase[_]];
+        println("else JsonValueBase--"+ToStringBuilder.reflectionToString(val1));
+        val b= reduceNew(val1,elementItersnew);
+        (elementItersnew,b)
+      }
+    }.takeWhile((v) =>{
+      println("take while")
+      !v._1.isEmpty
+    } ).foreach((v) => {
+      println("for each")
+      println("iterator--")
+      val t5=v._1.iterator
+      val t6=v._1.head.getCurrent();
+      val flatneer=v._2
+      println(s"get current iterator--$t6")
+      println("bool"+b+"sss"+t5.foreach(p => println("print contents"+p)))
+      if(flatneer.addVal)
+      {
+        var map:JsonifyLinkedHashMapNew[String,Object]=getElem(v._1,flatneer.source2)
+        println("bool true"+b+"sss"+t5.foreach(p => println("print contents"+p)))
+        flattenedMap1.putAll(map)
+      }
+    })
+    // flattenedMap.asScala
+    flattenedMap1.asScala
+    // while (!elementIters.isEmpty) {
+    // IndexedPeekIterator<?> deepestIter = elementIters.getLast();
+
+    //}
+
+    // flattenedMap.asScala
+    //flattenedMap = new JsonifyLinkedHashMapNew();
+
+
+  }
+
 
 
   def reduce(source2:JsonValBase[_]): Unit ={
@@ -186,7 +330,7 @@ class JsonFlattener(json:String) {
 
   }
 
-  def reduceNew(source2:JsonValBase[JacksonJsonVal],elementItersnew:mutable.ArrayDeque[IndexedPeekIterator[Any]])  ={
+  def reduceNew(source2:JsonValBase[_],elementItersnew:mutable.ArrayDeque[IndexedPeekIterator[Any]])  ={
 
     var compute=false
     if (source2.isObject && source2.asObject.iterator.hasNext) {
@@ -202,9 +346,9 @@ class JsonFlattener(json:String) {
       println("reduce else---"+source2)
       println("elementIters size---" + elementIters.size)
       //var key:String = computeKey()
-      var key:String = computeKeyNew1(elementItersnew)
-      flattenedMap.put(key,source2)
-      println("reduce computed key---"+key)
+      //var key:String = computeKeyNew1(elementItersnew)
+      //flattenedMap.put(key,source2)
+     // println("reduce computed key---"+key)
       compute=true
     }
     //System.out.println("else--");
@@ -296,7 +440,23 @@ class JsonFlattener(json:String) {
 //  }
 
 }
+
+trait JsonFlattenable[JVC<:JsonValBase[JVC]]{
+  def serialize(t: String): JsonValBase[JVC]
+}
 object JsonFlattener {
+
+
+  implicit object JacksonJsonFlattenable extends JsonFlattenable[JacksonJsonVal]{
+    def serialize(json: String) = {
+      var source:JsonValBase[JacksonJsonVal] =new JacksonJsonCore().parse(json)
+      source
+    }
+  }
+
+  def convertToJson[JVC<:JsonValBase[JVC]](x: String): JsonValBase[_] = {
+    implicitly[JsonFlattenable[JacksonJsonVal]].serialize(x)
+  }
 
   def defaultTransalator(): AggregateTranslator = {
 

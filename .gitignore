@@ -33,7 +33,5 @@ classes/
 
 # Visual Studio Code
 .vscode
-/project/
-/.idea/
-/.bsp/
-/target/
+
+/project/target/

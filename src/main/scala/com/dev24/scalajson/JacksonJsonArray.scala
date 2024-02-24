@@ -1,10 +1,9 @@
 package com.dev24.scalajson
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.{ArrayNode, ObjectNode}
-import  scala.jdk.CollectionConverters._
+import com.fasterxml.jackson.databind.node.ArrayNode
 
-import java.util.Map.Entry
+import scala.jdk.CollectionConverters._
 
 class JacksonJsonArray(arrayNode:ArrayNode) extends JsonArrCore[JacksonJsonVal] {
   override def set(index: Int, jsonSource: JsonSource): Unit = arrayNode.set(index,jsonSource.getSource.asInstanceOf[JsonNode])

@@ -1,5 +1,7 @@
 package com.dev24.scalajson
 
+
+
 //val  iterator;
 //private E peek;
 
@@ -86,6 +88,14 @@ class IndexedPeekIterator[T](iterator: Iterator[T]) extends Iterator[T] {
 
 }
 object IndexedPeekIterator {
+
+  //type T= Entry[String,_]
+
+//  def  apply[T](iter:Iterable[Entry[String,_]]): IndexedPeekIterator[Entry[String,_]] = {
+//    val j = new IndexedPeekIterator(iter.iterator)
+//    j
+//  }
+
 
   def  apply[T](iter:Iterable[T]): IndexedPeekIterator[T] = {
     val j = new IndexedPeekIterator(iter.iterator)

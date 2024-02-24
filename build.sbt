@@ -13,6 +13,7 @@ val commonslang = "org.apache.commons" % "commons-lang3" % "3.12.0"
 val playjson = "com.typesafe.play" %% "play-json" % "2.10.0-RC5"
 val upicklejson = "com.lihaoyi" %% "upickle" % "1.4.3"
 val jackson = "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.0.2"
+val oslib="com.lihaoyi" %% "os-lib" % "0.9.1" intransitive()
 
 lazy val root = (project in file("."))
   .settings(
@@ -27,7 +28,8 @@ lazy val root = (project in file("."))
       commonsText,
       commonslang,
       playjson,
-      upicklejson
+      upicklejson,
+      oslib
     ),
     scalacOptions ++= Seq(
       "-deprecation",

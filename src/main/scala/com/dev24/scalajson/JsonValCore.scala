@@ -1,5 +1,4 @@
 package com.dev24.scalajson
-
 trait JsonValCore[JVC<:JsonValCore[JVC]] extends JsonValBase[JVC] with JsonSource  {
 
 

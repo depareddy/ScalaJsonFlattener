@@ -8,7 +8,7 @@ class JacksonJsonCore {
 
   def  parseHelper(json:String):Try[JacksonJsonVal] = Try {
     val mapper = new ObjectMapper()
-    val j=new JacksonJsonVal(mapper.readTree(json))
+    val j=JacksonJsonVal(mapper.readTree(json))
     println("parseHelper--"+j)
     j
     }
